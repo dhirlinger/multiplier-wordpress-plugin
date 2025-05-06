@@ -55,3 +55,35 @@ function multiplier_setup_table()
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
     dbDelta($sql);
 }
+
+/**
+ * Register the REST API multiplier-api/v1/freq-arrays route
+ */
+add_action('rest_api_init', 'multiplier_freq_arrays_routes');
+function multiplier_freq_arrays_routes()
+{
+    register_rest_route(
+        'multiplier-api/v1',
+        '/freq-arrays/',
+        array(
+            'methods'  => 'GET',
+            'callback' => 'multiplier_get_freq_arrays',
+            'permission_callback' => '__return_true'
+        )
+    );
+}
+
+/**
+ * GET callback for the multiplier-api/v1/freq-arrays route
+ *
+ * @return array|object|stdClass[]|null
+ */
+function multiplier_get_freq_arrays()
+{
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'freq-arrays';
+
+    $results = $wpdb->get_results("SELECT * FROM $table_name");
+
+    return $results;
+}
