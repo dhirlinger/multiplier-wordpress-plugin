@@ -12,48 +12,79 @@ register_activation_hook(__FILE__, 'multiplier_setup_table');
 function multiplier_setup_table()
 {
     global $wpdb;
-    $freq_array = $wpdb->prefix . 'freq_array';
-    $index_array = $wpdb->prefix . 'index_array';
-    $preset = $wpdb->prefix . 'preset';
+    require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+
+    $charset_collate = $wpdb->get_charset_collate();
+
+    $index_array_table = $wpdb->prefix . 'multiplier_index_array';
+    $freq_array_table  = $wpdb->prefix . 'multiplier_freq_array';
+    $preset_table      = $wpdb->prefix . 'multiplier_preset';
 
     $sql = "
-        CREATE TABLE $freq_array (
-            array_id INTEGER PRIMARY KEY AUTO_INCREMENT, 
-            array_name VARCHAR(50),
-            base_freq DOUBLE,
-            multiplier DOUBLE,
-            user_id INTEGER, 
-            FOREIGN KEY (user_id) REFERENCES wp_users(ID)
-        );
+CREATE TABLE $index_array_table (
+    array_id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+    index_array VARCHAR(25) NOT NULL,
+    user_id BIGINT(20) UNSIGNED NOT NULL,
+    PRIMARY KEY (array_id),
+    KEY user_id (user_id)
+) $charset_collate;
 
-        CREATE TABLE $index_array (
-	        array_id INTEGER PRIMARY KEY AUTO_INCREMENT, 
-            index_array VARCHAR(25),
-            user_id INTEGER, 
-            FOREIGN KEY (user_id) REFERENCES wp_users(ID)
-        );
+CREATE TABLE $freq_array_table (
+    array_id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+    array_name VARCHAR(50) NOT NULL,
+    base_freq DOUBLE NOT NULL,
+    multiplier DOUBLE NOT NULL,
+    user_id BIGINT(20) UNSIGNED NOT NULL,
+    PRIMARY KEY (array_id),
+    KEY user_id (user_id)
+) $charset_collate;
 
-        CREATE TABLE $preset (
-	        preset_id INTEGER PRIMARY KEY AUTO_INCREMENT, 
-            waveshape VARCHAR(25),
-            duration DOUBLE,
-            lowpass_freq INTEGER,
-            lowpass_q INTEGER,
-	        index_array_id INTEGER,
-             FOREIGN KEY (index_array_id) REFERENCES index_array(array_id),
-            freq_array_id INTEGER,
-            FOREIGN KEY (freq_array_id) REFERENCES freq_array(array_id),
-            user_id INTEGER, 
-            FOREIGN KEY (user_id) REFERENCES wp_users(ID)
-        );
+CREATE TABLE $preset_table (
+    preset_id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+    waveshape VARCHAR(25) NOT NULL,
+    duration DOUBLE NOT NULL,
+    lowpass_freq INT NOT NULL,
+    lowpass_q INT NOT NULL,
+    index_array_id BIGINT(20) UNSIGNED NOT NULL,
+    freq_array_id BIGINT(20) UNSIGNED NOT NULL,
+    user_id BIGINT(20) UNSIGNED NOT NULL,
+    PRIMARY KEY (preset_id),
+    KEY index_array_id (index_array_id),
+    KEY freq_array_id (freq_array_id),
+    KEY user_id (user_id)
+) $charset_collate;
+";
 
-        INSERT INTO freq_array (array_name, base_freq, multiplier, user_id)
-        VALUES ('DEFAULT', 110.0, 2.0, 1);
-        
-        ";
-
-    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
     dbDelta($sql);
+
+    // Add foreign key constraints manually
+    $wpdb->query("ALTER TABLE $index_array_table 
+    ADD CONSTRAINT fk_index_user 
+    FOREIGN KEY (user_id) REFERENCES {$wpdb->prefix}users(ID);");
+
+    $wpdb->query("ALTER TABLE $freq_array_table 
+    ADD CONSTRAINT fk_freq_user 
+    FOREIGN KEY (user_id) REFERENCES {$wpdb->prefix}users(ID);");
+
+    $wpdb->query("ALTER TABLE $preset_table 
+    ADD CONSTRAINT fk_preset_index 
+    FOREIGN KEY (index_array_id) REFERENCES $index_array_table(array_id);");
+
+    $wpdb->query("ALTER TABLE $preset_table 
+    ADD CONSTRAINT fk_preset_freq 
+    FOREIGN KEY (freq_array_id) REFERENCES $freq_array_table(array_id);");
+
+    $wpdb->query("ALTER TABLE $preset_table 
+    ADD CONSTRAINT fk_preset_user 
+    FOREIGN KEY (user_id) REFERENCES {$wpdb->prefix}users(ID);");
+
+    //seed Freq Array with a default row
+    $wpdb->insert($freq_array_table, [
+        'array_name' => 'DEFAULT',
+        'base_freq' => 110.0,
+        'multiplier' => 2.0,
+        'user_id' => 1
+    ]);
 }
 
 /**
@@ -81,7 +112,7 @@ function multiplier_freq_arrays_routes()
 function multiplier_get_freq_arrays()
 {
     global $wpdb;
-    $table_name = $wpdb->prefix . 'freq-array';
+    $table_name = $wpdb->prefix . 'multiplier_freq-array';
 
     $results = $wpdb->get_results("SELECT * FROM $table_name");
 
