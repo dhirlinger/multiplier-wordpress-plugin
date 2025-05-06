@@ -81,7 +81,7 @@ function multiplier_freq_arrays_routes()
 function multiplier_get_freq_arrays()
 {
     global $wpdb;
-    $table_name = $wpdb->prefix . 'freq-arrays';
+    $table_name = $wpdb->prefix . 'freq-array';
 
     $results = $wpdb->get_results("SELECT * FROM $table_name");
 
