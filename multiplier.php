@@ -4,3 +4,5 @@
 * Author: Doug Hirlinger
 * Author URI: doughirlinger.com
 */
+
+/*Create database tables and seed one default Frequency Array*/
