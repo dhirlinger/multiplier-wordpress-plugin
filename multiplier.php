@@ -22,31 +22,31 @@ function multiplier_setup_table()
 
     $sql = "
 CREATE TABLE $index_array_table (
-    array_id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+    array_id MEDIUMINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
     index_array VARCHAR(25) NOT NULL,
-    user_id BIGINT(20) UNSIGNED NOT NULL,
+    user_id SMALLINT(20) UNSIGNED NOT NULL,
     PRIMARY KEY (array_id),
     KEY user_id (user_id)
 ) $charset_collate;
 
 CREATE TABLE $freq_array_table (
-    array_id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+    array_id MEDIUMINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
     array_name VARCHAR(50) NOT NULL,
     base_freq DOUBLE NOT NULL,
     multiplier DOUBLE NOT NULL,
-    user_id BIGINT(20) UNSIGNED NOT NULL,
+    user_id SMALLINT(20) UNSIGNED NOT NULL,
     PRIMARY KEY (array_id),
     KEY user_id (user_id)
 ) $charset_collate;
 
 CREATE TABLE $preset_table (
-    preset_id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+    preset_id MEDIUMINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
     waveshape VARCHAR(25) NOT NULL,
     duration DOUBLE NOT NULL,
     lowpass_freq INT NOT NULL,
     lowpass_q INT NOT NULL,
-    index_array_id BIGINT(20) UNSIGNED NOT NULL,
-    freq_array_id BIGINT(20) UNSIGNED NOT NULL,
+    index_array_id MEDIUMINT(20) UNSIGNED NOT NULL,
+    freq_array_id MEDIUMINT(20) UNSIGNED NOT NULL,
     user_id BIGINT(20) UNSIGNED NOT NULL,
     PRIMARY KEY (preset_id),
     KEY index_array_id (index_array_id),
