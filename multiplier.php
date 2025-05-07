@@ -57,4 +57,14 @@ function multiplier_setup_table()
 
     require_once ABSPATH . 'wp-admin/includes/upgrade.php';
     dbDelta($sql);
+
+    //add foreign key contraints maunually
+
+    $wpdb->query("ALTER TABLE $preset_table 
+    ADD CONSTRAINT fk_preset_index 
+    FOREIGN KEY (index_array_id) REFERENCES $index_array_table(array_id);");
+
+    $wpdb->query("ALTER TABLE $preset_table 
+    ADD CONSTRAINT fk_preset_freq 
+    FOREIGN KEY (freq_array_id) REFERENCES $freq_array_table(array_id);");
 }
