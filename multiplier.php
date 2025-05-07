@@ -66,13 +66,24 @@ function multiplier_setup_table()
 
     //add foreign key contraints maunually
 
-    $wpdb->query("ALTER TABLE $preset_table 
-    ADD CONSTRAINT fk_preset_index 
-    FOREIGN KEY (index_array_id) REFERENCES $index_array_table(array_id);");
+    $sql_fk_check =
+        $wpdb->get_results(
+            "SELECT array_id 
+            FROM $freq_array_table
+            WHERE array_id = 1;
+            "
+        );
 
-    $wpdb->query("ALTER TABLE $preset_table 
-    ADD CONSTRAINT fk_preset_freq 
-    FOREIGN KEY (freq_array_id) REFERENCES $freq_array_table(array_id);");
+    if ($sql_fk_check == 0) {
+        $wpdb->query("ALTER TABLE $preset_table 
+            ADD CONSTRAINT fk_preset_index 
+            FOREIGN KEY (index_array_id) REFERENCES $index_array_table(array_id);");
+
+        $wpdb->query("ALTER TABLE $preset_table 
+            ADD CONSTRAINT fk_preset_freq 
+            FOREIGN KEY (freq_array_id) REFERENCES $freq_array_table(array_id);");
+    }
+
 
     add_option('jal_db_version', $jal_db_version);
 }
@@ -89,16 +100,26 @@ function multiplier_install_data()
 
     $freq_array_table = $wpdb->prefix . 'multiplier_freq_array';
 
-    $wpdb->insert(
-        $freq_array_table,
-        array(
-            'array_id' => $array_id,
-            'base_freq' => $base_freq,
-            'multiplier' => $multiplier,
-            'array_name' => $array_name,
-            'user_id' => $user_id,
-        )
-    );
+    $sql_fk_check =
+        $wpdb->get_results(
+            "SELECT array_id 
+            FROM $freq_array_table
+            WHERE array_id = 1;
+            "
+        );
+
+    if ($sql_fk_check == 0) {
+        $wpdb->insert(
+            $freq_array_table,
+            array(
+                'array_id' => $array_id,
+                'base_freq' => $base_freq,
+                'multiplier' => $multiplier,
+                'array_name' => $array_name,
+                'user_id' => $user_id,
+            )
+        );
+    }
 }
 
 /**
