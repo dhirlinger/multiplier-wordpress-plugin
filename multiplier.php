@@ -12,6 +12,7 @@ register_activation_hook(__FILE__, 'multiplier_setup_table');
 function multiplier_setup_table()
 {
     global $wpdb;
+    global $jal_db_version;
 
     $index_array_table = $wpdb->prefix . 'multiplier_index_array';
     $freq_array_table  = $wpdb->prefix . 'multiplier_freq_array';
@@ -67,6 +68,8 @@ function multiplier_setup_table()
     $wpdb->query("ALTER TABLE $preset_table 
     ADD CONSTRAINT fk_preset_freq 
     FOREIGN KEY (freq_array_id) REFERENCES $freq_array_table(array_id);");
+
+    add_option('jal_db_version', $jal_db_version);
 }
 
 /**
