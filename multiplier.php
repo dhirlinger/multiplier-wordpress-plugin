@@ -147,6 +147,16 @@ function multiplier_freq_arrays_routes()
             'permission_callback' => 'multiplier_check_permissions'
         )
     );
+
+    register_rest_route(
+        'multiplier-api/v1',
+        '/freq-arrays/(?P<id>\d+)',
+        array(
+            'methods'  => 'GET',
+            'callback' => 'multiplier_get_freq_array',
+            'permission_callback' => '__return_true'
+        )
+    );
 }
 
 /**
@@ -180,6 +190,18 @@ function multiplier_create_freq_array($request)
     );
 
     return $rows;
+}
+
+function multiplier_get_freq_array($request)
+{
+    $id = $request['id'];
+
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'multiplier_freq_array';
+
+    $results = $wpdb->get_results("SELECT * FROM $table_name WHERE user_id = $id");
+
+    return $results;
 }
 
 function multiplier_check_permissions()
