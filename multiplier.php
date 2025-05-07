@@ -8,8 +8,11 @@
 
 //Create database tables and seed one default Frequency Array
 
+global $jal_db_version;
+$jal_db_version = '1.0';
+
 register_activation_hook(__FILE__, 'multiplier_setup_table');
-register_activation_hook(__FILE__, 'multiplier_data_install');
+register_activation_hook(__FILE__, 'multiplier_install_data');
 
 function multiplier_setup_table()
 {
@@ -78,18 +81,22 @@ function multiplier_install_data()
 {
     global $wpdb;
 
+    $array_id = 1;
     $base_freq = 110;
     $multiplier = 2;
     $array_name = 'DEFAULT';
+    $user_id = 1;
 
-    $freq_array_table = $wpdb->prefix . 'freq_array';
+    $freq_array_table = $wpdb->prefix . 'multiplier_freq_array';
 
     $wpdb->insert(
         $freq_array_table,
         array(
+            'array_id' => $array_id,
             'base_freq' => $base_freq,
             'multiplier' => $multiplier,
             'array_name' => $array_name,
+            'user_id' => $user_id,
         )
     );
 }
