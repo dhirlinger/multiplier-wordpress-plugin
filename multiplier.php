@@ -73,7 +73,7 @@ function multiplier_setup_table()
             WHERE array_id = 1;
             "
         );
-
+    //avoid multiple contrain addition attemps upon more than one plugin activation
     if ($sql_fk_check == 0) {
         $wpdb->query("ALTER TABLE $preset_table 
             ADD CONSTRAINT fk_preset_index 
@@ -107,7 +107,7 @@ function multiplier_install_data()
             WHERE array_id = 1;
             "
         );
-
+    //avoid multiple insertions upon more than one plugin activation
     if ($sql_fk_check == 0) {
         $wpdb->insert(
             $freq_array_table,
@@ -137,6 +137,16 @@ function multiplier_freq_arrays_routes()
             'permission_callback' => '__return_true'
         )
     );
+
+    register_rest_route(
+        'multiplier-api/v1',
+        '/freq-arrays/',
+        array(
+            'methods'  => 'POST',
+            'callback' => 'multiplier_create_freq_array',
+            'permission_callback' => 'multiplier_check_permissions'
+        )
+    );
 }
 
 /**
@@ -152,4 +162,27 @@ function multiplier_get_freq_arrays()
     $results = $wpdb->get_results("SELECT * FROM $table_name");
 
     return $results;
+}
+
+function multiplier_create_freq_array($request)
+{
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'multiplier_freq_array';
+
+    $rows = $wpdb->insert(
+        $table_name,
+        array(
+            'base_freq' => $request['base_freq'],
+            'multiplier' => $request['multiplier'],
+            'array_name' => $request['array_name'],
+            'user_id' => $request['user_id'],
+        )
+    );
+
+    return $rows;
+}
+
+function multiplier_check_permissions()
+{
+    return current_user_can('edit_posts');
 }
