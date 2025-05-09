@@ -123,21 +123,17 @@ function multiplier_install_data()
 }
 
 /**
- * Register the REST API multiplier-api/v1/freq-arrays route
+ * Register the REST API routes multiplier-api/v1/
+ * freq-arrays 
+ * index-arrays
+ * presets
  */
-add_action('rest_api_init', 'multiplier_freq_arrays_routes');
-function multiplier_freq_arrays_routes()
+add_action('rest_api_init', 'multiplier_routes');
+function multiplier_routes()
 {
-    register_rest_route(
-        'multiplier-api/v1',
-        '/freq-arrays/',
-        array(
-            'methods'  => 'GET',
-            'callback' => 'multiplier_get_freq_arrays',
-            'permission_callback' => '__return_true'
-        )
-    );
+    /*FREQ ARRAYS*/
 
+    //post
     register_rest_route(
         'multiplier-api/v1',
         '/freq-arrays/',
@@ -147,7 +143,7 @@ function multiplier_freq_arrays_routes()
             'permission_callback' => 'multiplier_check_permissions'
         )
     );
-
+    //get freq_arrays for a user
     register_rest_route(
         'multiplier-api/v1',
         '/freq-arrays/(?P<id>\d+)',
@@ -157,23 +153,62 @@ function multiplier_freq_arrays_routes()
             'permission_callback' => '__return_true'
         )
     );
+    
+    /*INDEX ARRAYS*/
+
+    //post
+    register_rest_route(
+        'multiplier-api/v1',
+        '/index-arrays/',
+        array(
+            'methods'  => 'POST',
+            'callback' => 'multiplier_create_index_array',
+            'permission_callback' => 'multiplier_check_permissions'
+        )
+    );
+    //get index_arrays for a user
+    register_rest_route(
+        'multiplier-api/v1',
+        '/index-arrays/(?P<id>\d+)',
+        array(
+            'methods'  => 'GET',
+            'callback' => 'multiplier_get_index_array',
+            'permission_callback' => '__return_true'
+        )
+    );
+
+    /*PRESETS*/
+
+    //post
+    register_rest_route(
+        'multiplier-api/v1',
+        '/presets/',
+        array(
+            'methods'  => 'POST',
+            'callback' => 'multiplier_create_preset',
+            'permission_callback' => 'multiplier_check_permissions'
+        )
+    );
+    //get presets for a user
+    register_rest_route(
+        'multiplier-api/v1',
+        '/presets/(?P<id>\d+)',
+        array(
+            'methods'  => 'GET',
+            'callback' => 'multiplier_get_presets',
+            'permission_callback' => '__return_true'
+        )
+    );
+
 }
 
 /**
- * GET callback for the multiplier-api/v1/freq-arrays route
+ * GET all callback for the multiplier-api/v1/freq-arrays route
  *
  * @return array|object|stdClass[]|null
  */
-function multiplier_get_freq_arrays()
-{
-    global $wpdb;
-    $table_name = $wpdb->prefix . 'multiplier_freq_array';
 
-    $results = $wpdb->get_results("SELECT * FROM $table_name");
-
-    return $results;
-}
-
+//post callback
 function multiplier_create_freq_array($request)
 {
     global $wpdb;
@@ -191,13 +226,86 @@ function multiplier_create_freq_array($request)
 
     return $rows;
 }
-
+//GET callback for a single user
 function multiplier_get_freq_array($request)
 {
     $id = $request['id'];
 
     global $wpdb;
     $table_name = $wpdb->prefix . 'multiplier_freq_array';
+
+    $results = $wpdb->get_results("SELECT * FROM $table_name WHERE user_id = $id");
+
+    return $results;
+}
+
+/**
+ * GET all callback for the multiplier-api/v1/index-arrays route
+ *
+ */
+
+//post callback
+function multiplier_create_index_array($request)
+{
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'multiplier_index_array';
+
+    $rows = $wpdb->insert(
+        $table_name,
+        array(
+            'index_array' => $request['index_array'],
+            'user_id' => $request['user_id'],
+        )
+    );
+
+    return $rows;
+}
+//GET callback for a single user
+function multiplier_get_index_array($request)
+{
+    $id = $request['id'];
+
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'multiplier_index_array';
+
+    $results = $wpdb->get_results("SELECT * FROM $table_name WHERE user_id = $id");
+
+    return $results;
+}
+
+/**
+ * GET all callback for the multiplier-api/v1/presets route
+ *
+ */
+
+//post callback
+function multiplier_create_preset($request)
+{
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'multiplier_preset';
+
+    $rows = $wpdb->insert(
+        $table_name,
+        array(
+            'waveshape' => $request['waveshape'],
+            'duration' => $request['duration'],
+            'lowpass_freq' => $request['lowpass_freq'],
+            'lowpass_q' => $request['lowpass_q'],
+            'index_array_id' => $request['index_array_id'],
+            'freq_array_id' => $request['freq_array_id'],
+            'user_id' => $request['user_id'],
+        )
+    );
+
+    return $rows;
+}
+//GET callback for a single user
+function multiplier_get_presets($request)
+{
+    $id = $request['id'];
+
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'multiplier_preset';
 
     $results = $wpdb->get_results("SELECT * FROM $table_name WHERE user_id = $id");
 
