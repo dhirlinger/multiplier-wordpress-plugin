@@ -29,6 +29,7 @@ function multiplier_setup_table()
     $sql = "
         CREATE TABLE $index_array_table (
         array_id mediumint(9) NOT NULL AUTO_INCREMENT,
+        array_name VARCHAR(50) NOT NULL,
         index_array VARCHAR(25) NOT NULL,
         user_id smallint(9) NOT NULL,
         PRIMARY KEY  (array_id),
@@ -133,6 +134,17 @@ function multiplier_routes()
 {
     /*FREQ ARRAYS*/
 
+    //get freq_arrays
+    register_rest_route(
+        'multiplier-api/v1',
+        '/freq-arrays/',
+        array(
+            'methods'  => 'GET',
+            'callback' => 'multiplier_get_freq_arrays',
+            'permission_callback' => '__return_true'
+        )
+    );
+
     //post
     register_rest_route(
         'multiplier-api/v1',
@@ -153,7 +165,7 @@ function multiplier_routes()
             'permission_callback' => '__return_true'
         )
     );
-    
+
     /*INDEX ARRAYS*/
 
     //post
@@ -199,7 +211,6 @@ function multiplier_routes()
             'permission_callback' => '__return_true'
         )
     );
-
 }
 
 /**
@@ -207,6 +218,18 @@ function multiplier_routes()
  *
  * @return array|object|stdClass[]|null
  */
+
+//GET callback for all arrays
+function multiplier_get_freq_arrays()
+{
+
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'multiplier_freq_array';
+
+    $results = $wpdb->get_results("SELECT * FROM $table_name");
+
+    return $results;
+}
 
 //post callback
 function multiplier_create_freq_array($request)
@@ -254,6 +277,7 @@ function multiplier_create_index_array($request)
         $table_name,
         array(
             'index_array' => $request['index_array'],
+            'array_name' => $request['array_name'],
             'user_id' => $request['user_id'],
         )
     );
