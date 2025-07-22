@@ -49,6 +49,7 @@ function multiplier_setup_table()
         CREATE TABLE $preset_table (
             preset_id mediumint(9) NOT NULL AUTO_INCREMENT,
             name VARCHAR(25),
+            tempo INT NOT NULL,
             waveshape VARCHAR(25) NOT NULL,
             duration DOUBLE NOT NULL,
             lowpass_freq INT NOT NULL,
@@ -313,6 +314,7 @@ function multiplier_create_preset($request)
         $table_name,
         array(
             'name' => $request['name'],
+            'tempo' => $request['tempo'],
             'waveshape' => $request['waveshape'],
             'duration' => $request['duration'],
             'lowpass_freq' => $request['lowpass_freq'],
