@@ -48,6 +48,7 @@ function multiplier_setup_table()
 
         CREATE TABLE $preset_table (
             preset_id mediumint(9) NOT NULL AUTO_INCREMENT,
+            name VARCHAR(25),
             waveshape VARCHAR(25) NOT NULL,
             duration DOUBLE NOT NULL,
             lowpass_freq INT NOT NULL,
@@ -311,6 +312,7 @@ function multiplier_create_preset($request)
     $rows = $wpdb->insert(
         $table_name,
         array(
+            'name' => $request['name'],
             'waveshape' => $request['waveshape'],
             'duration' => $request['duration'],
             'lowpass_freq' => $request['lowpass_freq'],
